@@ -1,82 +1,47 @@
 package com.examly.springapp.controller;
 
-
-import com.examly.springapp.repository.*;
-import com.examly.springapp.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import com.examly.springapp.entity.Taskentity;
+import com.examly.springapp.service.TaskService;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin
-@RequestMapping("/")
+@RequestMapping()
 public class TaskController {
-
     @Autowired
-    TaskRepository taskRepository;
-
-
+    private TaskService service;
+    
     @PostMapping("/saveTask")
-    public ResponseEntity<?> saveTask(@RequestBody Task task){
-        return new ResponseEntity<>(taskRepository.save(task), HttpStatus.ACCEPTED);
-    }
-
-    @GetMapping("/allTasks")
-    public ResponseEntity<?> allTasks(){
-        return new ResponseEntity<>(taskRepository.findAll(),HttpStatus.ACCEPTED);
-    }
-
-    @GetMapping("/deleteTask/{taskId}")
-    public ResponseEntity<?> deleteById(@PathVariable String taskId){
-        List<Task> allTask = (List<Task>) taskRepository.findAll();
-
-        if(allTask !=null){
-            for(Task task : allTask){
-                if(task.getTaskId().equals(taskId)){
-                    taskRepository.deleteById(task.getId());
-                    return new ResponseEntity<>("Task with specified id got deleted",HttpStatus.ACCEPTED);
-                }
-            }
-        }
-
-        return  new ResponseEntity<>("Task with specified id not found",HttpStatus.ACCEPTED);
+    public Taskentity saveTask(@RequestBody Taskentity taskentity){
+        Taskentity output = service.saveTask(taskentity);
+        return output;
     }
 
 
-    @GetMapping("/getTask/{holderName}")
-    public ResponseEntity<?> deleteByHolderName(@PathVariable String holderName){
-        List<Task> allTask = (List<Task>) taskRepository.findAll();
-
-        if(allTask !=null){
-            for(Task task : allTask){
-                if(task.getTaskHolderName().equals(holderName)){
-                    //taskRepository.deleteById(task.getId());
-                    return new ResponseEntity<>(task,HttpStatus.ACCEPTED);
-                }
-            }
-        }
-
-        return  new ResponseEntity<>("Task with specified holder name not found",HttpStatus.ACCEPTED);
+    @GetMapping("/changeStatus")
+    private Taskentity updatetaskStatus(@RequestParam("id") String id){
+        return service.updatetaskStatus(id);
     }
 
+    @GetMapping("/deleteTask")
+    private String deleteTask(@RequestParam("id") String id){
+        return service.deleteTask(id);
+    }
+    @GetMapping("/alltasks")
+    private List<Taskentity> getallTasks(){
+        return service.getallTasks();
+    }
 
-    @GetMapping("/changeStatus/{taskId}")
-    public ResponseEntity<?> changeStatus(@PathVariable String taskId){
-        List<Task> allTask = (List<Task>) taskRepository.findAll();
-
-        if(allTask !=null){
-            for(Task task : allTask){
-                if(task.getTaskId().equals(taskId)){
-                    task.setTaskStatus("changed");
-                    return new ResponseEntity<>(task,HttpStatus.ACCEPTED);
-                }
-            }
-        }
-
-        return  new ResponseEntity<>("Task with specified Task Id not found",HttpStatus.ACCEPTED);
+    @GetMapping("/getTask")
+    private Taskentity getTask(@RequestParam("id") String id){
+        return service.gettaskbyid(id);
     }
 
 }
